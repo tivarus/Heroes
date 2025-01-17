@@ -6,7 +6,6 @@ import com.battle.heroes.army.programs.PrintBattleLog;
 import com.battle.heroes.army.programs.SimulateBattle;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class SimulateBattleImpl implements SimulateBattle {
@@ -18,23 +17,20 @@ public class SimulateBattleImpl implements SimulateBattle {
         Set<Unit> computerUnits = new HashSet<>(computerArmy.getUnits());
 
         while (!playerUnits.isEmpty() && !computerUnits.isEmpty()) {
-            executeAttacks(playerUnits, computerUnits);
-            executeAttacks(computerUnits, playerUnits);
+            processAttacks(playerUnits);
+            processAttacks(computerUnits);
         }
     }
-    private void executeAttacks(Set<Unit> attackingUnits, Set<Unit> defendingUnits) throws InterruptedException {
-        Iterator<Unit> iterator = attackingUnits.iterator();
-        while (iterator.hasNext()) {
-            Unit attackingUnit = iterator.next();
-            if (!attackingUnit.isAlive()) {
-                iterator.remove(); // Чистим от мертвецов
-                continue;
-            }
 
-            Unit target = attackingUnit.getProgram().attack();
-            if (target != null) {
-                printBattleLog.printBattleLog(attackingUnit, target);
+    private void processAttacks(Set<Unit> attackingUnits) throws InterruptedException {
+        for (Unit attackingUnit : attackingUnits) {
+            if (attackingUnit.isAlive()) {
+                Unit target = attackingUnit.getProgram().attack();
+                if (target != null) {
+                    printBattleLog.printBattleLog(attackingUnit, target);
+                }
             }
         }
+        attackingUnits.removeIf(unit -> !unit.isAlive());
     }
 }
